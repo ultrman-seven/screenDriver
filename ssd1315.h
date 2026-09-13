@@ -10,7 +10,8 @@ extern "C" {
 
 typedef struct
 {
-    // uint8_t i2cAddr; // 固定地址无需指定
+    uint8_t addr;
+    uint8_t pageNum;
 
     // @brief i2c发送数据接口
     // @param addr 7位从机地址
@@ -27,12 +28,13 @@ typedef struct
 typedef struct
 {
     uint8_t fsm;
-    uint8_t targetFsm;
-    uint8_t cmdIdx;
+    // uint8_t targetFsm;
+    // uint8_t cmdIdx;
     uint8_t busBusy;
-    uint8_t cmdBuf[4];
+    uint8_t cmdBuf[8];
     Ssd1315I2cCfg_t cfg;
-    OledPic_t *pic;
+    const OledPic_t *pic;
+    // uint8_t *picDat;
     struct
     {
         void *arg;
@@ -40,7 +42,9 @@ typedef struct
     } cbk;
 } Ssd1315I2cHandle_t;
 
-#define SSD1315_MaxPage 4
+#define SSD1315_I2C_AddrBase 0x3c
+
+#define SSD1315_MaxPage 8
 #define SSD1315_MaxCol 128
 
 enum
@@ -49,12 +53,13 @@ enum
     SSD1315_ErrCode_BusBusy,
     SSD1315_ErrCode_BusErr,
     SSD1315_ErrCode_PicOutOfRange,
+    SSD1315_ErrCode_PicFormatErr,
 };
 void ssd1315_i2cInitAsync(Ssd1315I2cHandle_t *handle, Ssd1315I2cCfg_t *cfg, void (*cbk)(void *), void *arg);
 uint8_t ssd1315_i2cDisplayCtrlOnOffAsync(Ssd1315I2cHandle_t *handle, uint8_t on, void (*cbk)(void *), void *arg);
 uint8_t ssd1315_i2cDisplayCtrlReverseAsync(Ssd1315I2cHandle_t *handle, uint8_t reverse, void (*cbk)(void *), void *arg);
 uint8_t ssd1315_i2cDisplayCtrlRotateAsync(Ssd1315I2cHandle_t *handle, uint8_t rotate, void (*cbk)(void *), void *arg);
-uint8_t ssd1315_WritePicAsync(Ssd1315I2cHandle_t *handle, uint8_t startPage, uint8_t startCol, OledPic_t *pic, void (*cbk)(void *), void *arg);
+uint8_t ssd1315_WritePicAsync(Ssd1315I2cHandle_t *handle, uint8_t startPage, uint8_t startCol, const OledPic_t *pic, void (*cbk)(void *), void *arg);
 void ssd1315_Loop(Ssd1315I2cHandle_t *handle);
 
 #ifdef __cplusplus
